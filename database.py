@@ -1,11 +1,10 @@
-import mysql.connector
+from pymongo import MongoClient
 
-def get_connection():
-    connection = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Kartik@07",
-        database="face_attendance"
-    )
+MONGO_URI = "mongodb+srv://facerecognition:Kartik07@facerecognition.85i4ggh.mongodb.net/?retryWrites=true&w=majority&appName=facerecognition"
 
-    return connection
+client = MongoClient(MONGO_URI)
+
+db = client["face_attendance"]
+
+users_collection = db["users"]
+attendance_collection = db["attendance"]

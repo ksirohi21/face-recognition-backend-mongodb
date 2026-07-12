@@ -1,36 +1,29 @@
-from fastapi import FastAPI
-from database import get_connection
 from fastapi import FastAPI, UploadFile, File, Form
-import shutil
-import os
-from database import get_connection
+from database import users_collection, attendance_collection
 from face_recognition import find_match
-from fastapi import UploadFile, File
+from datetime import datetime
 import shutil
 import os
+
 app = FastAPI()
+
 os.makedirs("uploads", exist_ok=True)
+
 
 @app.get("/")
 def home():
-    return {
-        "message": "Face Recognition Backend Running"
-    }
+    return {"message": "Face Recognition Backend Running"}
 
 
 @app.get("/test-db")
 def test_database():
+    try:
+        users_collection.find_one()
+        return {"message": "MongoDB Connected Successfully"}
+    except Exception as e:
+        return {"message": str(e)}
 
-    connection = get_connection()
 
-    if connection:
-        return {
-            "message": "MySQL Connected Successfully"
-        }
-
-    return {
-        "message": "Database Connection Failed"
-    }
 @app.post("/register")
 def register_user(
     name: str = Form(...),
@@ -42,54 +35,25 @@ def register_user(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)
 
-    connection = get_connection()
-    cursor = connection.cursor()
+    users_collection.insert_one({
+        "name": name,
+        "face_image": file_path
+    })
 
-    query = """
-    INSERT INTO users(name, face_image)
-    VALUES(%s, %s)
-    """
+    return {"message": "User Registered Successfully"}
 
-    cursor.execute(query, (name, file_path))
-
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    return {
-        "message": "User Registered Successfully"
-    }
-from datetime import datetime
 
 @app.post("/mark-attendance")
-def mark_attendance(user_id: int):
+def mark_attendance(name: str):
 
-    connection = get_connection()
-    cursor = connection.cursor()
+    attendance_collection.insert_one({
+        "name": name,
+        "date_time": datetime.now(),
+        "status": "Present"
+    })
 
-    query = """
-    INSERT INTO attendance(user_id, date_time, status)
-    VALUES(%s, %s, %s)
-    """
+    return {"message": "Attendance Marked Successfully"}
 
-    cursor.execute(
-        query,
-        (
-            user_id,
-            datetime.now(),
-            "Present"
-        )
-    )
-
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    return {
-        "message": "Attendance Marked Successfully"
-    }
 
 @app.post("/recognize")
 def recognize_face(image: UploadFile = File(...)):
@@ -98,9 +62,6 @@ def recognize_face(image: UploadFile = File(...)):
 
     with open(path, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)
-
-    print("TEST IMAGE PATH:", path)
-    print("FILE EXISTS:", os.path.exists(path))
 
     match = find_match(path)
 
