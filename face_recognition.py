@@ -9,7 +9,7 @@ def verify_face(img1, img2):
         result = DeepFace.verify(
     img1_path=img1,
     img2_path=img2,
-    model_name="SFace",
+    model_name="Facenet512",
     detector_backend="opencv",
     enforce_detection=True
 )
