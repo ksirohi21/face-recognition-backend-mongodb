@@ -24,8 +24,11 @@ def find_match(test_image):
 
     folder = "uploads"
 
+
     if not os.path.exists(folder):
         return None
+    
+    print("UPLOAD FILES:", os.listdir(folder))
 
     for file in os.listdir(folder):
 
