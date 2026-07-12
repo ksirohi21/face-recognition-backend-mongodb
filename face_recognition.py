@@ -6,10 +6,12 @@ def verify_face(img1, img2):
 
     try:
         result = DeepFace.verify(
-            img1_path=img1,
-            img2_path=img2,
-            enforce_detection=True
-        )
+    img1_path=img1,
+    img2_path=img2,
+    model_name="SFace",
+    detector_backend="opencv",
+    enforce_detection=True
+)
 
         print("RESULT:", result)
 
