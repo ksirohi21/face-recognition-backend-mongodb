@@ -15,6 +15,7 @@ def verify_face(img1, img2):
 )
 
         print("RESULT:", result)
+        print("VERIFIED VALUE:", result["verified"])
 
         return result["verified"]
 
