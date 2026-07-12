@@ -5,6 +5,7 @@ import os
 def verify_face(img1, img2):
 
     try:
+        print("VERIFYING:", img1, img2)
         result = DeepFace.verify(
     img1_path=img1,
     img2_path=img2,
